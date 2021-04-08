@@ -1,0 +1,29 @@
+---
+- name: Check if restic is installed
+  shell: which restic
+  register: restic_installed
+
+- name: Check restic version
+  shell: restic version
+  register: restic_installed_version
+  when: "restic_installed.rc != 0"
+
+- name: Download restic archive
+  get_url: 
+    url: "https://github.com/restic/restic/releases/download/v{{ restic_version }}/restic_{{ restic_version }}_linux_arm.bz2"
+    dest: ~/Downloads/
+  when: "(restic_installed.rc != 0) and ('restic {{ restic_version }}' in restic_installed_version.stdout)"
+
+- name: Unpack restic binary
+  shell:
+    cmd: "bzip2 -cd restic_{{ restic_version }}_linux_arm.bz2"
+    chdir: ~/Downloads
+  when: "(restic_installed.rc != 0) and ('restic {{ restic_version }}' in restic_installed_version.stdout)"
+
+- name: Install restic binary to /usr/bin
+  copy:
+    src: "~/Downloads/restic_{{ restic_version }}_linux_arm"
+    dst: "/usr/bin/restic"
+    remote_src: true
+  become: true
+  when: "(restic_installed.rc != 0) and ('rclone {{ restic_version }}' == restic_installed_version.stdout)"

@@ -1,0 +1,9 @@
+---
+- name: Install rclone
+  include: rclone.yml
+
+- name: Install restic
+  include: restic.yml
+
+- name: Install resticprofile
+  include: resticprofile.yml

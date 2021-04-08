@@ -1,0 +1,8 @@
+---
+- name: Install ssh keys
+  template:
+    src: "files/{{ item }}"
+    dest: "~/.ssh/{{ item }}"
+  loop:
+  - id_rsa
+  - id_rsa.pub

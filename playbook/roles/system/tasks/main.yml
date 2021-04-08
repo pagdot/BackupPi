@@ -1,0 +1,25 @@
+---
+- name: Set hostname
+  become: true
+  hostname:
+    name: backuppi.pagdot.at
+
+- name: Install packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - htop
+    - sudo
+    - nano
+    - git
+    - fuse
+    - openssh-client
+
+- name: Setup system time
+  include_role:
+    name: geerlingguy.ntp
+    apply: 
+      become: true
+  vars:
+    ntp_timezone: Europe/Vienna

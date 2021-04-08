@@ -1,0 +1,30 @@
+---
+- name: Check if resticprofile is installed
+  shell: which resticprofile
+  register: resticprofile_installed
+
+- name: Check resticprofile version
+  shell: resticprofile version
+  register: resticprofile_installed_version
+  when: "resticprofile_installed.rc != 0"
+
+- name: Download resticprofile archive
+  get_url: 
+    url: "https://github.com/creativeprojects/resticprofile/releases/download/v{{ resticprofile_version }}/resticprofile_{{ resticprofile_version }}_linux_armv7.tar.gz"
+    dest: ~/Downloads/
+  when: "(resticprofile_installed.rc != 0) and ('resticprofile version {{ resticprofile_version }}' in resticprofile_installed_version.stdout)"
+
+- name: Unpack resticprofile binary from archive
+  unarchive:
+    src: "~/Downloads/resticprofile_{{ resticprofile_version }}_linux_armv7.tar.gz"
+    dest: ~/Downloads/
+    remote_src: true
+  when: "(resticprofile_installed.rc != 0) and ('resticprofile version {{ resticprofile_version }}' in resticprofile_installed_version.stdout)"
+
+- name: Install resticprofile binary to /usr/bin
+  copy:
+    src: "~/Downloads/resticprofile"
+    dst: "/usr/bin/resticprofile"
+    remote_src: true
+  become: true
+  when: "(resticprofile_installed.rc != 0) and ('rclone {{ restic_version }}' == resticprofile_installed_version.stdout)"
