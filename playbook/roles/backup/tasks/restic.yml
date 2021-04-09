@@ -37,4 +37,4 @@
     owner: root
     group: root
   become: true
-  when: (restic_installed.rc != 0) or not (("rclone " + restic_version) in restic_installed_version.stdout)
+  when: (restic_installed.rc != 0) or not (("restic " + restic_version) in restic_installed_version.stdout)
