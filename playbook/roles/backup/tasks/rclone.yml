@@ -2,20 +2,23 @@
 - name: Check if rclone is installed
   shell: which rclone
   register: rclone_installed
+  ignore_errors: true
+  changed_when: false
 
 - name: Check rclone version
-  shell: rclone --version | head -n 1
+  shell: rclone version | head -n 1
   register: rclone_installed_version
-  when: "rclone_installed.rc != 0"
+  when: rclone_installed.rc == 0
+  changed_when: false
 
 - name: Download rclone install package
   get_url:
     url: "https://downloads.rclone.org/{{ rclone_version }}/rclone-{{ rclone_version }}-linux-arm-v7.deb"
-    dest: ~/Downloads/
-  when: "(rclone_installed.rc != 0) and ('rclone {{ rclone_version }}' == rclone_installed_version.stdout)"
+    dest: /tmp/
+  when: (rclone_installed.rc != 0) or not ("rclone " + rclone_version == rclone_installed_version.stdout)
 
 - name: Install rclone
   apt:
-    deb: "~/Downloads/rclone-{{ rclone_version }}-linux-arm-v7.deb"
+    deb: "/tmp/rclone-{{ rclone_version }}-linux-arm-v7.deb"
   become: true
-  when: "(rclone_installed.rc != 0) and ('rclone {{ rclone_version }}' == rclone_installed_version.stdout)"
+  when: (rclone_installed.rc != 0) or not ("rclone " + rclone_version == rclone_installed_version.stdout)

@@ -2,28 +2,39 @@
 - name: Check if restic is installed
   shell: which restic
   register: restic_installed
+  ignore_errors: true
+  changed_when: false
 
 - name: Check restic version
   shell: restic version
   register: restic_installed_version
-  when: "restic_installed.rc != 0"
+  when: restic_installed.rc == 0
+  changed_when: false
+
+- name: Check downloaded and extracted restic binary
+  stat:
+    path: "/tmp/restic_{{ restic_version }}_linux_arm"
+  register: restic_binary
 
 - name: Download restic archive
   get_url: 
     url: "https://github.com/restic/restic/releases/download/v{{ restic_version }}/restic_{{ restic_version }}_linux_arm.bz2"
-    dest: ~/Downloads/
-  when: "(restic_installed.rc != 0) and ('restic {{ restic_version }}' in restic_installed_version.stdout)"
+    dest: /tmp/
+  when: (restic_installed.rc != 0) or not (("restic " + restic_version) in restic_installed_version.stdout)
 
 - name: Unpack restic binary
   shell:
-    cmd: "bzip2 -cd restic_{{ restic_version }}_linux_arm.bz2"
-    chdir: ~/Downloads
-  when: "(restic_installed.rc != 0) and ('restic {{ restic_version }}' in restic_installed_version.stdout)"
+    cmd: "bzip2 -kd restic_{{ restic_version }}_linux_arm.bz2"
+    chdir: /tmp
+  when: ((restic_installed.rc != 0) or not (("restic " + restic_version) in restic_installed_version.stdout)) and (restic_binary.stat.exists == false)
 
 - name: Install restic binary to /usr/bin
   copy:
-    src: "~/Downloads/restic_{{ restic_version }}_linux_arm"
-    dst: "/usr/bin/restic"
+    src: "/tmp/restic_{{ restic_version }}_linux_arm"
+    dest: /usr/bin/restic
     remote_src: true
+    mode: 751
+    owner: root
+    group: root
   become: true
-  when: "(restic_installed.rc != 0) and ('rclone {{ restic_version }}' == restic_installed_version.stdout)"
+  when: (restic_installed.rc != 0) or not (("rclone " + restic_version) in restic_installed_version.stdout)

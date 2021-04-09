@@ -10,24 +10,23 @@ echo "########################################"
 echo "##             install git            ##"
 echo "########################################"
 echo
-sudo apt install git
+sudo apt install -y git python3 python3-venv pyhton3-pip curl
 
 echo "########################################"
 echo "##             clone repo             ##"
 echo "########################################"
 echo
-git clone https://github.com/pagdot/BackupPip
+git clone https://github.com/pagdot/BackupPi
 
 echo "########################################"
 echo "##           setup ansible            ##"
 echo "########################################"
 echo
-cd BackupPip
-bash ./scripts/ansible/setup.sh
+cd BackupPi
+bash ./scripts/setup.sh
 
 echo "########################################"
 echo "##          deploy playbook           ##"
 echo "########################################"
 echo
-cd BackupPip
-bash ./scripts/ansible/deploy.sh
+bash ./scripts/deploy.sh
