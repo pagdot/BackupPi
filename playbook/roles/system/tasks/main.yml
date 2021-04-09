@@ -15,11 +15,11 @@
     - git
     - fuse
     - openssh-client
+  become: true
 
 - name: Setup system time
-  include_role:
+  import_role:
     name: geerlingguy.ntp
-    apply: 
-      become: true
   vars:
     ntp_timezone: Europe/Vienna
+  become: true

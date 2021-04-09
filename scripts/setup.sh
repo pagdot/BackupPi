@@ -10,4 +10,4 @@ python3 -m venv env
 
 pip3 install ansible
 
-ansible-galaxy install -r galaxy-requirements.yml
+ansible-galaxy install --roles-path playbook -r galaxy-requirements.yml
